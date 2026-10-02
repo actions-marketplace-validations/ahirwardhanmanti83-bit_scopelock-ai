@@ -99,8 +99,7 @@ if (outputFile) {
 
 // Write to GitHub Job Summary (Markdown Report inside GitHub UI)
 const stepSummaryFile = process.env.GITHUB_STEP_SUMMARY;
-if (stepSummaryFile) {
-  const markdown = `
+const markdown = `
 ### 🛡️ ScopeLock AI — Scope Creep CI Forensic Audit
 
 | Metric | Measured Value |
@@ -116,10 +115,48 @@ ${detectedCreep.map(d => `- **${d.category}**: \`${d.commit}\` *(+${d.hours} hrs
 ---
 👉 **[🚀 Generate Statutory UCC § 2-209 Change Order Notice](${LIVE_PORTAL_URL})**  
 ⭐ **[Support Open Source & Unlock Team License: Star ScopeLock AI on GitHub](https://github.com/ahirwardhanmanti83-bit/scopelock-ai)**  
-💖 **[Sponsor & Protect Your Entire Agency ($199/mo)](https://patreon.com/c/scopelock)**  
+💖 **[Lock Agency Defense Shield ($199/mo)](https://patreon.com/c/scopelock)**  
 *Protect agency billable hours before merging uncompensated client requests.*
 `;
+
+if (stepSummaryFile) {
   fs.appendFileSync(stepSummaryFile, markdown);
+}
+
+// VIRAL AUTOMATION: Post PR Comment to the Pull Request Conversation
+const githubToken = process.env.GITHUB_TOKEN;
+const eventPath = process.env.GITHUB_EVENT_PATH;
+
+if (githubToken && eventPath && fs.existsSync(eventPath)) {
+  try {
+    const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
+    const commentsUrl = eventData.pull_request?.comments_url;
+    if (commentsUrl) {
+      console.log('Posting viral audit notice to GitHub PR conversation...');
+      const https = await import('node:https');
+      const urlObj = new URL(commentsUrl);
+      const postData = JSON.stringify({ body: markdown });
+      const req = https.request({
+        hostname: urlObj.hostname,
+        path: urlObj.pathname,
+        method: 'POST',
+        headers: {
+          'User-Agent': 'ScopeLock-AI-Auditor',
+          'Authorization': `token ${githubToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      }, (res) => {
+        console.log(`PR comment posted with HTTP status: ${res.statusCode}`);
+      });
+      req.on('error', (e) => console.log('PR comment note:', e.message));
+      req.write(postData);
+      req.end();
+    }
+  } catch (prErr) {
+    // Non-fatal, summary is already written
+  }
 }
 
 if (failOnCreep && totalDollarVariance > 0) {
