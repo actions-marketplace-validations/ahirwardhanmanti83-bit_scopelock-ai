@@ -24,6 +24,8 @@
 ### ⭐ Support Open Source: Star this Repo to unlock all 12 Freelance Contract Clauses!
 **[👉 Click here to Star on GitHub](https://github.com/ahirwardhanmanti83-bit/scopelock-ai)**
 
+📖 **Read the Official Engineering Whitepaper:** [Autonomous Mitigation of Agency Margin Bleed (UCC § 2-209)](WHITEPAPER.md)
+
 </div>
 
 ---
