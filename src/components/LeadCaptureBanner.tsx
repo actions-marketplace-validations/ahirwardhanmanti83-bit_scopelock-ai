@@ -27,56 +27,39 @@ export const LeadCaptureBanner: React.FC = () => {
 
       <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
         <div className="text-left space-y-1.5 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold tracking-wide">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wide">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>PERMANENT DEVELOPER LEGAL VAULT</span>
+            <span>GITHUB TRENDING COMMUNITY ENGINE</span>
           </div>
           <h3 className="text-base md:text-lg font-extrabold text-white tracking-tight">
-            Get 10 Free UCC § 2-209 Contract Amendments & Scope Creep Alerts
+            🔥 Push ScopeLock to #1 on GitHub Trending & Unlock Court-Ready SOW Arsenal
           </h3>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Never get trapped by demanding clients. Enter your work email to receive enforceable legal change order templates, hourly variance worksheets, and automatic scope-creep defense updates.
+            Star our repository on GitHub to join 1,000+ software founders, unlock 10 statutory UCC § 2-209 legal change-order templates, and get instant access to the $199/mo Agency Defense Suite.
           </p>
         </div>
 
         <div className="w-full lg:w-auto flex-shrink-0">
-          {submitted ? (
-            <div className="flex items-center gap-3 px-5 py-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <div>
-                <p className="font-extrabold text-white">VIP Access Granted & Templates Dispatched!</p>
-                <p className="text-[11px] text-emerald-400/80 font-mono">Check your inbox for the legal contract bundle.</p>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2 w-full max-w-md">
-              <div className="relative w-full">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your work email (e.g. dev@agency.com)"
-                  required
-                  className="w-full pl-10 pr-3 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-extrabold text-xs shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 whitespace-nowrap transition-all cursor-pointer active:scale-95 disabled:opacity-50"
-              >
-                {loading ? (
-                  <span>Locking...</span>
-                ) : (
-                  <>
-                    <span>Get Free Templates</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
-              </button>
-            </form>
-          )}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-md">
+            <a
+              href="https://github.com/ahirwardhanmanti83-bit/scopelock-ai"
+              target="_blank"
+              rel="noreferrer"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-xl shadow-amber-500/30 flex items-center justify-center gap-2 whitespace-nowrap transition-all cursor-pointer active:scale-95 group"
+            >
+              <span className="text-base group-hover:scale-125 transition-transform">⭐</span>
+              <span>Star ScopeLock on GitHub (1-Click)</span>
+              <ArrowRight className="w-4 h-4 text-slate-950" />
+            </a>
+            <a
+              href="https://patreon.com/c/scopelock"
+              target="_blank"
+              rel="noreferrer"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-indigo-500/50 text-indigo-300 font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap transition-all cursor-pointer"
+            >
+              <span>Agency Pro ($199/mo)</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
