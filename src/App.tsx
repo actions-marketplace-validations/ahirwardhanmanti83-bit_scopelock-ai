@@ -29,6 +29,7 @@ import { initSessionTelemetry, recordTelemetryEvent } from './utils/telemetry';
 import { OpenVaultDirectory } from './components/OpenVaultDirectory';
 import { PublicVaultCase } from './data/publicVaultData';
 import { LeadCaptureBanner } from './components/LeadCaptureBanner';
+import { ViralShieldBadge } from './components/ViralShieldBadge';
 import { saveLead } from './utils/leadCapture';
 import {
   ShieldCheck, Shield, FileText, MessageSquareQuote, Calculator, Terminal, BarChart3, BookOpen, Github, Star, CheckCircle2, MessageSquare
@@ -408,6 +409,9 @@ export function App() {
               <span>GitHub Action</span>
             </a>
           </div>
+
+          {/* Viral GitHub Shield Badge Generator */}
+          <ViralShieldBadge />
 
           {/* Navigation Tab Bar */}
           <div className="pt-4 flex items-center justify-center">
