@@ -371,7 +371,7 @@ export function App() {
             <span>Proprietary B2B Scope Defense Infrastructure • Zero Direct Competitors</span>
           </div>
           <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight">
-            Stop Doing Free Work. The Unassailable Defense Against Client Scope Creep.
+            Stop Unpaid Scope Creep. Enforce Statutory UCC § 2-209 Change Orders.
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
             Combines algorithmic contract forensics, automated margin recovery ($/hr), and UCC-enforceable legal change orders into an untouchable monopoly engine.
@@ -437,7 +437,7 @@ export function App() {
                 }`}
               >
                 <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Free Defense Vault (Public Index)</span>
+                <span>Legal Defense Vault (UCC § 2-209)</span>
               </button>
 
               <button
