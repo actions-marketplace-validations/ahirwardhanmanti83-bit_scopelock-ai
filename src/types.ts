@@ -1,77 +1,46 @@
-export interface ScopeItem {
-  id: string;
+export interface ScopeDetectedItem {
   title: string;
-  description: string;
-  isOriginal: boolean;
+  category: 'Architecture' | 'Frontend' | 'Backend/API' | 'Third-Party' | 'Design Revision';
+  isOutOfScope: boolean;
   estimatedHours: number;
-  hourlyRate: number;
-  status: 'approved' | 'scope_creep' | 'pending_change_order';
   costImpact: number;
+  riskExplanation: string;
+}
+
+export interface ScopeAuditResult {
+  overallVerdict: 'in_scope' | 'partial_scope_creep' | 'severe_scope_creep';
+  creepScore: number;
+  summary: string;
+  detectedItems: ScopeDetectedItem[];
+  totalHours: number;
+  totalCostUSD: number;
   timelineDelayDays: number;
-  category?: string;
-  detectedAt?: string;
-  cost?: number;
-  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
+  diplomaticReply: string;
+  changeOrderNotice?: string;
+  dailyStandupText?: string;
 }
 
-export interface ProjectScope {
-  id: string;
-  name: string;
-  clientName: string;
-  createdAt: string;
-  items: ScopeItem[];
-}
-
-export interface ChangeOrder {
-  id: string;
-  projectId?: string;
-  orderNumber: string;
-  projectName?: string;
-  clientName?: string;
-  clientEmail?: string;
-  createdAt?: string;
-  totalCost?: number;
-  totalHours?: number;
-  totalExtraHours?: number;
-  totalExtraCost?: number;
-  currency?: string;
-  revisedValue?: number;
+export interface LicenseState {
+  isPro: boolean;
+  isInstantUnlocked: boolean;
+  tier: 'free' | 'instant_pass' | 'solo_pro' | 'agency_pro' | 'enterprise';
+  tierName: string;
   agencyName?: string;
-  agencyEmail?: string;
-  items?: ScopeItem[];
+  agencyLogo?: string;
 }
 
-export interface BrandingSettings {
+export interface ChangeOrderDocument {
+  changeOrderNumber: string;
+  date: string;
   agencyName: string;
-  agencyEmail: string;
-  currency: string;
-  defaultHourlyRate: number;
-  primaryColor: string;
-  paymentNotice: string;
-}
-
-export interface ScopeAuditReport {
-  id: string;
-  registryId?: string;
-  projectName: string;
   clientName: string;
-  clientEmail?: string;
-  contractBudget: number;
-  contractTimelineWeeks: number;
+  projectName: string;
   hourlyRate: number;
-  items: ScopeItem[];
-  totalScopeCreepCost: number;
-  totalScopeCreepHours: number;
-  totalDelayDays: number;
-  budgetOverrunPercentage: number;
-  auditDate: string;
-  agencyBrand?: AgencyBranding;
-}
-
-export interface AgencyBranding {
-  agencyName: string;
-  supportEmail: string;
-  logoUrl?: string;
-  customDisclaimer?: string;
-  paymentLink?: string;
+  totalHours: number;
+  totalCost: number;
+  timelineExtensionDays: number;
+  items: { description: string; hours: number; cost: number }[];
+  clientSignatoryName: string;
+  agencySignatoryName: string;
+  paymentTerms: string;
 }
