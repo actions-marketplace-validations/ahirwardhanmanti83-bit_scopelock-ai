@@ -14,7 +14,8 @@ import {
   Terminal, 
   Check, 
   Zap,
-  Clock
+  Clock,
+  User
 } from 'lucide-react';
 import { LicenseState } from '../types';
 
@@ -23,6 +24,7 @@ interface NavbarProps {
   setActiveTab: (tab: 'daily_quoter' | 'auditor' | 'change_order' | 'margin' | 'vault') => void;
   license: LicenseState;
   onOpenPricing: () => void;
+  onOpenProfile: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -30,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   license,
   onOpenPricing,
+  onOpenProfile,
 }) => {
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -120,6 +123,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Chrome Extension (Simulator & ZIP)</span>
             </button>
 
+            <button
+              onClick={onOpenProfile}
+              className="px-2.5 py-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Dhanmanti Ahirwar - Official Signatory Profile"
+            >
+              <User className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Profile (Dhanmanti A.)</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </button>
+
             {license.isPro ? (
               <span className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -177,18 +190,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-slate-950 border-b border-slate-800 px-4 sm:px-6 py-2.5 overflow-x-auto">
         <div className="max-w-7xl mx-auto flex items-center gap-2">
           <button
-            onClick={() => setActiveTab('daily_quoter')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'daily_quoter'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                : 'text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-850'
-            }`}
-          >
-            <Zap className="w-3.5 h-3.5" />
-            <span>Daily Quoter & Standup (Trojan Horse)</span>
-          </button>
-
-          <button
             onClick={() => setActiveTab('auditor')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'auditor'
@@ -198,6 +199,32 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Scope Audit & Change Orders</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('daily_quoter')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'daily_quoter'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : 'text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-850'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Daily Quoter & Standup</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('change_order')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'change_order'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : 'text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-850'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Change Orders & Client Sign Portal</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Live Link
+            </span>
           </button>
 
           <button

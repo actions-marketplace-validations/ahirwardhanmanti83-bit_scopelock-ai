@@ -1,6 +1,5 @@
 # ScopeLock AI 🛡️
 
-[![Featured on LaunchNest](https://launchnest.io/badge/scopelock-ai.svg?variant=featured)](https://launchnest.io/p/scopelock-ai)
 > **Stop Doing Free Work. The Unassailable Defense Against Client Scope Creep & Unpaid Invoices.**
 > Includes the **Emergency Unpaid Invoice Recovery Engine (UCC § 2-209 Fast-Track Protocol)**.
 

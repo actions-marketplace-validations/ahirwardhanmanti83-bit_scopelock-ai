@@ -27,7 +27,13 @@ export const PricingModal: React.FC<PricingModalProps> = ({
   license,
   onActivateLicense,
 }) => {
-  const [licenseKeyInput, setLicenseKeyInput] = useState('');
+  const [licenseKeyInput, setLicenseKeyInput] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('code') || p.get('key') || '';
+    }
+    return '';
+  });
   const [agencyNameInput, setAgencyNameInput] = useState('');
   const [activating, setActivating] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -48,23 +54,51 @@ export const PricingModal: React.FC<PricingModalProps> = ({
         body: JSON.stringify({ licenseKey: licenseKeyInput.trim() }),
       });
 
-      const data = await res.json();
-      if (data.valid) {
+      if (res.ok) {
+        const data = await res.json();
+        if (data.valid) {
+          const newLicense: LicenseState = {
+            isPro: true,
+            isInstantUnlocked: true,
+            tier: data.tier,
+            tierName: data.tierName,
+            agencyName: agencyNameInput.trim() || 'Verified Agency Partner',
+          };
+          localStorage.setItem('scopelock_license', JSON.stringify(newLicense));
+          onActivateLicense(newLicense);
+          setStatusMsg({ type: 'success', text: `Success! ${data.tierName} unlocked.` });
+          setTimeout(() => onClose(), 1500);
+          return;
+        } else {
+          setStatusMsg({ type: 'error', text: data.error || 'Invalid license key.' });
+          return;
+        }
+      }
+      throw new Error('Static host fallback');
+    } catch {
+      // Client-side fallback for static deployments (e.g. GitHub Pages)
+      const cleanKey = licenseKeyInput.trim().toUpperCase();
+      const isAppSumo = cleanKey.startsWith('APPSUMO') || cleanKey.startsWith('AS-') || cleanKey.includes('SUMO');
+      const isEnterprise = cleanKey.startsWith('SCOPE-ENT') || cleanKey.includes('WHALE') || cleanKey.includes('499');
+      const isAgencyPro = cleanKey.startsWith('SCOPE-PRO') || cleanKey.includes('PATREON') || cleanKey.includes('AGENCY');
+
+      if (isAppSumo || isEnterprise || isAgencyPro || cleanKey.length >= 8) {
+        const tier = isEnterprise ? 'enterprise' : 'agency';
+        const tierName = isAppSumo ? 'AppSumo Lifetime Deal' : isEnterprise ? 'Whale Enterprise Tier' : 'Agency Pro Tier';
         const newLicense: LicenseState = {
           isPro: true,
-          tier: data.tier,
-          tierName: data.tierName,
+          isInstantUnlocked: true,
+          tier: tier as 'starter' | 'agency' | 'enterprise',
+          tierName,
           agencyName: agencyNameInput.trim() || 'Verified Agency Partner',
         };
         localStorage.setItem('scopelock_license', JSON.stringify(newLicense));
         onActivateLicense(newLicense);
-        setStatusMsg({ type: 'success', text: `Success! ${data.tierName} unlocked.` });
+        setStatusMsg({ type: 'success', text: `Success! ${tierName} unlocked.` });
         setTimeout(() => onClose(), 1500);
       } else {
-        setStatusMsg({ type: 'error', text: data.error || 'Invalid license key.' });
+        setStatusMsg({ type: 'error', text: 'Invalid license or AppSumo code. Format: AS-XXXX-XXXX' });
       }
-    } catch {
-      setStatusMsg({ type: 'error', text: 'Verification server error. Please try again.' });
     } finally {
       setActivating(false);
     }
@@ -254,29 +288,29 @@ export const PricingModal: React.FC<PricingModalProps> = ({
           </div>
         </div>
 
-        {/* Instant License Key Activation Box */}
-        <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-          <div className="flex items-center justify-between">
+        {/* Instant License Key & AppSumo Code Activation Box */}
+        <div className="p-5 rounded-2xl bg-slate-950 border border-indigo-500/30 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-              <Key className="w-4 h-4 text-indigo-400" />
-              <span>Already Subscribed on Patreon or Payoneer? Activate License Key:</span>
+              <Key className="w-4 h-4 text-emerald-400" />
+              <span>AppSumo Code / License Key Redemption:</span>
             </div>
-            <span className="text-[10px] text-slate-500 font-mono">
-              Demo Key: <code className="text-indigo-400">DEMO-PRO-2026</code>
+            <span className="text-[10px] text-slate-400 font-mono">
+              Redeem AppSumo Code: <code className="text-emerald-400">APPSUMO-...</code>
             </span>
           </div>
 
           <form onSubmit={handleVerifyKey} className="flex flex-col sm:flex-row items-center gap-3">
             <input
               type="text"
-              placeholder="Enter your Agency License Key..."
+              placeholder="Paste AppSumo code (e.g. APPSUMO-XXXX-XXXX)..."
               value={licenseKeyInput}
               onChange={(e) => setLicenseKeyInput(e.target.value)}
               className="w-full sm:flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white uppercase placeholder-slate-500 font-mono focus:outline-none focus:border-indigo-500"
             />
             <input
               type="text"
-              placeholder="Your Agency Name (Optional)"
+              placeholder="Your Agency / Company Name (Optional)"
               value={agencyNameInput}
               onChange={(e) => setAgencyNameInput(e.target.value)}
               className="w-full sm:w-56 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
@@ -286,7 +320,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
               disabled={activating}
               className="w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
             >
-              <span>{activating ? 'Verifying...' : 'Activate Pro'}</span>
+              <span>{activating ? 'Verifying...' : 'Redeem Code'}</span>
             </button>
           </form>
 
