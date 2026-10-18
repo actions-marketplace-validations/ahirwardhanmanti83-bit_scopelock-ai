@@ -12,7 +12,20 @@ export const Footer: React.FC = () => {
             <span className="text-slate-600 font-normal">| Enterprise SOW Governance</span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex flex-wrap items-center gap-4 text-slate-400">
+            {/* LaunchNest Verified Badge */}
+            <a
+              href="https://launchnest.io/p/scopelock-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center hover:opacity-90 transition-opacity"
+            >
+              <img
+                src="https://launchnest.io/badge/scopelock-ai.svg?variant=featured"
+                alt="scopelock-ai on LaunchNest"
+                className="h-7 w-auto"
+              />
+            </a>
             <a
               href="https://patreon.com/c/scopelock"
               target="_blank"
