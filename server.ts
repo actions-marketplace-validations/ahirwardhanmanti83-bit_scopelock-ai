@@ -255,59 +255,166 @@ Return strictly a JSON object:
   }
 });
 
-// Endpoint: License Key & $3 Instant Pass Verification
+// Endpoint: License Key & Plan Verification (Free, Pro $19/mo, Agency $199/mo)
 app.post('/api/verify-license', (req, res) => {
   const { licenseKey } = req.body;
   if (!licenseKey || typeof licenseKey !== 'string') {
-    return res.status(400).json({ valid: false, error: 'License key or unlock code required' });
+    return res.status(400).json({ valid: false, error: 'License key required' });
   }
 
   const cleanKey = licenseKey.trim().toUpperCase();
 
-  // Recognize $3 Instant Pass codes (Patreon receipt / instant pass / micro-transaction)
-  const isInstant3Pass = 
-    cleanKey.includes('PASS-3') || 
-    cleanKey.includes('INSTANT-3') || 
-    cleanKey.includes('PASS3') || 
-    cleanKey.includes('3USD') || 
-    cleanKey === 'UNLOCK3' ||
-    cleanKey === 'VIP-3';
+  // Recognize AppSumo Lifetime Deals
+  const isAppSumo = cleanKey.startsWith('APPSUMO') || cleanKey.startsWith('AS-') || cleanKey.includes('SUMO');
 
-  // Recognize Agency Pro ($199/mo) and Enterprise ($499/mo)
-  const isVipEnterprise = cleanKey.startsWith('SCOPE-ENT') || cleanKey.includes('WHALE') || cleanKey.includes('499');
-  const isAgencyPro = cleanKey.startsWith('SCOPE-PRO') || cleanKey.includes('AGENCY') || cleanKey.includes('199') || cleanKey === 'DEMO-PRO-2026';
-  const isSoloPass = cleanKey.startsWith('SCOPE-SOLO') || cleanKey.includes('PASS') || cleanKey.includes('SOLO');
+  // Recognize Agency ($199/mo)
+  const isAgency = isAppSumo || cleanKey.startsWith('AGENCY') || cleanKey.includes('199') || cleanKey === 'DEMO-PRO-2026';
 
-  if (isInstant3Pass) {
-    return res.json({
-      valid: true,
-      tier: 'instant_pass',
-      tierName: 'Instant $3 Export Pass',
-      unlocked: true,
-      activationCode: cleanKey,
-      message: 'Instant $3 Export Pass successfully unlocked! Official clean document is ready.'
-    });
-  }
+  // Recognize Pro ($19/mo)
+  const isPro = cleanKey.startsWith('PRO') || cleanKey.includes('19') || cleanKey.includes('SOLO') || cleanKey === 'PRO-DEMO-2026';
 
-  if (isVipEnterprise || isAgencyPro || isSoloPass) {
-    const tier = isVipEnterprise ? 'enterprise' : isAgencyPro ? 'agency_pro' : 'solo_pro';
+  if (isAgency || isPro) {
+    const tier = isAgency ? 'agency' : 'pro';
+    const tierName = isAppSumo 
+      ? 'AppSumo Deal (Agency Unlimited)' 
+      : isAgency 
+      ? 'Agency ($199/mo)' 
+      : 'Pro ($19/mo)';
+
     return res.json({
       valid: true,
       tier,
-      tierName: isVipEnterprise ? 'Enterprise Whale ($499/mo)' : isAgencyPro ? 'Agency Pro ($199/mo)' : 'Solo Pass ($19/mo)',
-      brandingAllowed: true,
+      tierName,
+      brandingAllowed: isAgency,
       unlimitedScans: true,
       unlocked: true,
-      exportWatermarkRemoved: true,
       activationCode: cleanKey,
-      message: `License successfully activated: ${tier === 'agency_pro' ? 'Agency Pro ($199/mo)' : 'Enterprise Whale ($499/mo)'}!`
+      message: `License successfully activated: ${tierName}!`
     });
   }
 
   return res.status(401).json({
     valid: false,
-    error: 'Invalid code. Use demo code PASS-3USD for instant unlock or DEMO-PRO-2026 for Agency Pro.'
+    error: 'Invalid license key. Use demo code PRO-DEMO-2026 for Pro ($19/mo) or DEMO-PRO-2026 for Agency ($199/mo).'
   });
+});
+
+// In-Memory Live Orders Store for Viral Client Approval Links
+interface StoredOrder {
+  id: string;
+  data: any;
+  status: 'pending' | 'signed';
+  createdAt: string;
+  signedAt?: string;
+  signedByName?: string;
+  signatureHash?: string;
+}
+
+const ordersStore = new Map<string, StoredOrder>();
+
+// Pre-seed an instant sample order for immediate live testing
+ordersStore.set('co-demo-2026', {
+  id: 'co-demo-2026',
+  data: {
+    changeOrderNumber: 'CO-2026-001',
+    date: '2026-10-15',
+    agencyName: 'Apex Engineering Labs',
+    clientName: 'HyperScale Corp',
+    projectName: 'Cloud Enterprise Portal & Native iOS MVP',
+    hourlyRate: 150,
+    totalHours: 32,
+    totalCost: 4800,
+    timelineExtensionDays: 7,
+    items: [
+      { description: 'Native push notification container for iOS and Android', hours: 14, cost: 2100 },
+      { description: 'Automated two-way webhook sync with Salesforce CRM', hours: 12, cost: 1800 },
+      { description: 'International multi-currency Stripe checkout tax compliance', hours: 6, cost: 900 }
+    ],
+    clientSignatoryName: 'David Vance, VP Engineering',
+    agencySignatoryName: 'Lead Agency Partner',
+    paymentTerms: '50% upon change order execution, 50% upon milestone completion. Delivery timeline is extended automatically.'
+  },
+  status: 'pending',
+  createdAt: new Date().toISOString()
+});
+
+// Endpoint: Create live shareable change order
+app.post('/api/orders', (req, res) => {
+  try {
+    const { orderData } = req.body;
+    if (!orderData) {
+      return res.status(400).json({ error: 'Order data is required' });
+    }
+    const id = 'co-' + Math.random().toString(36).substring(2, 9);
+    const newOrder: StoredOrder = {
+      id,
+      data: orderData,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    ordersStore.set(id, newOrder);
+    return res.json({ success: true, id, shareUrl: `/?orderId=${id}` });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to create order' });
+  }
+});
+
+// Endpoint: Retrieve live order by ID
+app.get('/api/orders/:id', (req, res) => {
+  const order = ordersStore.get(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'Change order not found or link expired.' });
+  }
+  return res.json({ success: true, order });
+});
+
+// Endpoint: Client Digital Signature & Instant Ratification
+app.post('/api/orders/:id/sign', (req, res) => {
+  const order = ordersStore.get(req.params.id);
+  if (!order) {
+    return res.status(404).json({ error: 'Change order not found' });
+  }
+  const { signatoryName = 'Authorized Client Executive' } = req.body;
+  const now = new Date().toISOString();
+  const hash = 'SIG-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+
+  order.status = 'signed';
+  order.signedAt = now;
+  order.signedByName = signatoryName;
+  order.signatureHash = hash;
+  ordersStore.set(req.params.id, order);
+
+  return res.json({
+    success: true,
+    order,
+    signatureHash: hash,
+    signedAt: now,
+    message: 'Change order officially signed and ratified.'
+  });
+});
+
+// Endpoint: Download generated AppSumo CSV codes
+app.get('/api/download-appsumo-codes', (_req, res) => {
+  const filePath = path.resolve(__dirname, 'appsumo_codes.csv');
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="appsumo_codes.csv"');
+  return res.sendFile(filePath);
+});
+
+// Endpoint: Download full project source zip (for GitHub)
+app.get('/api/download-source-zip', (_req, res) => {
+  const filePath = path.resolve(__dirname, 'scopelock-source.zip');
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename="scopelock-source.zip"');
+  return res.sendFile(filePath);
+});
+
+// Endpoint: Download compiled static files for GitHub Pages
+app.get('/api/download-github-dist', (_req, res) => {
+  const filePath = path.resolve(__dirname, 'github-pages-dist.zip');
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename="github-pages-dist.zip"');
+  return res.sendFile(filePath);
 });
 
 // Mount Vite or serve static
